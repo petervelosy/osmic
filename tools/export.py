@@ -199,7 +199,7 @@ def main():
 
                 # save modified file
                 try:
-                    iconfile = open(icon_out_path, 'w')
+                    iconfile = open(icon_out_path, 'wb')
                     iconfile.write(icon)
                     iconfile.close()
                 except IOError:
@@ -578,7 +578,9 @@ def parseColor(color):
 
 # modifications to the SVG
 def modifySVG(config, icon_id, size, icon):
-    xml = lxml.etree.fromstring(icon)
+    icon_utf8 = icon.encode('utf-8')
+    parser = lxml.etree.XMLParser(encoding='utf-8')
+    xml = lxml.etree.fromstring(icon_utf8, parser)
     # cleanup namespaces as Inkscape adds a (unnecessary?) xmlns:svg namespace,
     # which leads to unwanted svg:path elements for halos
     lxml.objectify.deannotate(xml, cleanup_namespaces=True)
