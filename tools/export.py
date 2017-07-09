@@ -17,6 +17,7 @@ import shutil
 import subprocess
 import sys
 import yaml
+import posixpath
 
 
 def main():
@@ -96,6 +97,10 @@ def main():
             print('The size filter is not a number.')
 
     num_icons = 0
+
+    if 'sql' in config:
+        sql_path = os.path.join(config['output_basedir'], 'export.sql')
+        sql_file = open(sql_path, 'w')
 
     # loop through all specified directories
     for directory in config['input']:
@@ -202,6 +207,16 @@ def main():
                     iconfile = open(icon_out_path, 'wb')
                     iconfile.write(icon)
                     iconfile.close()
+
+                    if 'sql' in config:
+                        iconfile_relpath = os.path.relpath(icon_out_path, config['output_basedir'])
+                        iconfile_relpath = iconfile_relpath.replace(os.sep,posixpath.sep)
+                        sql_iconfile_path = posixpath.join(config['sql']['base_path'], iconfile_relpath)
+
+                        args = dict(icon_name=icon_id, icon_path=sql_iconfile_path)
+                        sql_statement = config['sql']['query_template'] % args
+                        sql_file.write(sql_statement + '\n')
+
                 except IOError:
                     print('Could not save the modified file ' + icon_out_path + '.')
                     continue
@@ -224,6 +239,8 @@ def main():
                 print(e)
                 continue
 
+    if 'sql' in config:
+        sql_file.close()
 
     # export font
     if config['format'] == 'font':
