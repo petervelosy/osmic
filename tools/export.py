@@ -208,15 +208,6 @@ def main():
                     iconfile.write(icon)
                     iconfile.close()
 
-                    if 'sql' in config:
-                        iconfile_relpath = os.path.relpath(icon_out_path, config['output_basedir'])
-                        iconfile_relpath = iconfile_relpath.replace(os.sep,posixpath.sep)
-                        sql_iconfile_path = posixpath.join(config['sql']['base_path'], iconfile_relpath)
-
-                        args = dict(icon_name=icon_id, icon_path=sql_iconfile_path)
-                        sql_statement = config['sql']['query_template'] % args
-                        sql_file.write(sql_statement + '\n')
-
                 except IOError:
                     print('Could not save the modified file ' + icon_out_path + '.')
                     continue
@@ -235,6 +226,18 @@ def main():
 
                     exportPNG(icon_out_path, destination, config['dpi'], config['retina'])
                     os.remove(icon_out_path)
+
+                if 'sql' in config:
+                    iconfile_path = destination if config['format'] == 'png' else icon_out_path
+
+                    iconfile_relpath = os.path.relpath(iconfile_path, config['output_basedir'])
+                    iconfile_relpath = iconfile_relpath.replace(os.sep,posixpath.sep)
+                    sql_iconfile_path = posixpath.join(config['sql']['base_path'], iconfile_relpath)
+
+                    args = dict(icon_name=icon_id, icon_path=sql_iconfile_path)
+                    sql_statement = config['sql']['query_template'] % args
+                    sql_file.write(sql_statement + '\n')
+
             except Exception as e:
                 print(e)
                 continue
