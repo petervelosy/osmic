@@ -220,7 +220,7 @@ def main():
 
                     exportPNG(icon_out_path, destination, config['dpi'], config['retina'])
                     os.remove(icon_out_path)
-            except Exception, e:
+            except Exception as e:
                 print(e)
                 continue
 
